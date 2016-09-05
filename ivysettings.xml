@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ivysettings>
+  <property name="ivy.cache.dir" value="${user.home}/.ivy2/cache" override="false"/>
+  <settings defaultResolver="chain"/>
+  <caches defaultCacheDir="${ivy.cache.dir}" lockStrategy="artifact-lock-nio"/>
+  <resolvers>
+    <chain name="chain">
+      <ibiblio name="central" m2compatible="true"/>
+    </chain>
+  </resolvers>
+</ivysettings>
