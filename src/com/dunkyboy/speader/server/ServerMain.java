@@ -1,8 +1,8 @@
 package com.dunkyboy.speader.server;
 
+import com.dunkyboy.speader.server.dao.FeedDao;
 import com.dunkyboy.speader.server.resource.json.JsonFeedsResource;
 import com.dunkyboy.speader.server.resource.json.JsonIndexResource;
-import com.dunkyboy.speader.server.svc.FeedsSvc;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -17,15 +17,19 @@ import java.util.StringTokenizer;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
 
 /**
+ * Main class with basic logic to route HTTP requests to the relevant web or JSON resources.
+ *
  * Created by Duncan on 9/3/16.
  */
 public class ServerMain extends AbstractHandler {
 
     public static void main(String[] args) throws Exception {
 
+        FeedDao feedDao = new FeedDao();
+
         TopLevelResource topLevelResource = new TopLevelResource();
         JsonIndexResource jsonIndexResource = new JsonIndexResource();
-        JsonFeedsResource jsonFeedsResource = new JsonFeedsResource( new FeedsSvc() );
+        JsonFeedsResource jsonFeedsResource = new JsonFeedsResource(feedDao);
 
         Server server = new Server(8080);
         server.setHandler( new ServerMain(topLevelResource, jsonIndexResource, jsonFeedsResource) );
@@ -64,20 +68,37 @@ public class ServerMain extends AbstractHandler {
 
         StringTokenizer targetTokens = new StringTokenizer(target, "/");
 
-        if ( !targetTokens.hasMoreTokens() ) {
+        if ( !targetTokens.hasMoreTokens() )
             return topLevelResource;
-        }
 
         ResourceType resourceType = ResourceType.fromStr( targetTokens.nextToken() );
         switch (resourceType) {
             case WEB:
-                return null;  // TODO implement web UI
+                return getWebResourceForTarget(targetTokens);
             case JSON:
                 return getJsonResourceForTarget(targetTokens);
             default:
                 return null;
         }
     }
+
+    private Handler getWebResourceForTarget(StringTokenizer targetTokens) {
+        return null;  // TODO implement web UI
+    }
+
+    private Handler getJsonResourceForTarget(StringTokenizer targetTokens) {
+        if ( !targetTokens.hasMoreTokens() )
+            return jsonIndexResource;
+
+        String target = targetTokens.nextToken().toLowerCase();
+
+        if ( jsonFeedsResource.getTargetUrl().equals(target) )
+            return jsonFeedsResource;
+        // else next resource...
+
+        return null;
+    }
+
 
     private enum ResourceType {
         WEB, JSON;

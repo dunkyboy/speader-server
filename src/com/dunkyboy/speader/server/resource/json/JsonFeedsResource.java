@@ -1,7 +1,7 @@
 package com.dunkyboy.speader.server.resource.json;
 
+import com.dunkyboy.speader.server.dao.FeedDao;
 import com.dunkyboy.speader.server.model.Feed;
-import com.dunkyboy.speader.server.svc.FeedsSvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -20,12 +20,12 @@ public class JsonFeedsResource extends AbstractJsonResource {
 
     private static final String PARAM_USER = "u";
 
-    private final FeedsSvc feedsSvc;
+    private final FeedDao feedDao;
     private final ObjectWriter jsonWriter;
 
-    public JsonFeedsResource(FeedsSvc feedsSvc) {
+    public JsonFeedsResource(FeedDao feedDao) {
         super("feeds");
-        this.feedsSvc = feedsSvc;
+        this.feedDao = feedDao;
         this.jsonWriter = new ObjectMapper().writer().forType(Feed.class);
     }
 
@@ -37,7 +37,7 @@ public class JsonFeedsResource extends AbstractJsonResource {
 
     @Override
     protected String getJson(Map<String, String> params) throws JsonProcessingException {
-        Feed feed = feedsSvc.getFeedForUser( params.get(PARAM_USER) );
+        Feed feed = feedDao.getFeedForUser( params.get(PARAM_USER) );
         return jsonWriter.writeValueAsString(feed);
     }
 }
